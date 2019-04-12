@@ -81,7 +81,7 @@ const Pad = styled.div`
   border-radius: 2px;
   border: 1px #aaa solid;
   box-shadow: 0 0 5px rgba(0,0,0,.5);
-  background-image: radial-gradient(ellipse, #6c6e71, #75777a, #7f8083, #888a8d, #929396);
+  background-image: radial-gradient(ellipse at bottom, #626262, #676767, #6d6d6d, #727272, #787878);
   &:active{
     transform: scale(.95);
     /* box-shadow: none; */
