@@ -79,7 +79,7 @@ export default function App(props){
   const [currentDisplay, setCurrentDisplay] = useState("0");
   const [currentOperation, setCurrentOperation] = useState("");
   const [evaluated, setEvaluated] = useState(false);
-  const operators = ['*', '/', '+', '-', '='];
+  const operators = ['*', '/', '+', '='];
 
 
   // manage too long display
@@ -90,11 +90,38 @@ export default function App(props){
       setCurrentDisplay(nextDisplay);
     }
   }, [currentDisplay])
+
+  // AC pressed reset
   function reset(){
     setCurrentDisplay('0')
     setCurrentOperation("");
     setEvaluated(false);
   }
+  function manageMinusClick(){
+      let lastCharOfOperation = currentOperation.substring(currentOperation.length - 1);
+      // if there are two minus consecutive  do return
+      if(currentDisplay === "-" && lastCharOfOperation === "-"){
+        return;
+      }
+      // if current display is minus or operator
+      else if(currentDisplay === "-" || isAnOperator(currentDisplay)){
+        setCurrentOperation(currentOperation+" -");
+        setCurrentDisplay("-");
+      }
+      else {
+        // if operation is not started
+        if(currentDisplay === "0"){
+          setCurrentOperation("-");
+          setCurrentDisplay("-");
+        }
+        else {
+          setCurrentOperation(currentOperation+"  -");
+          setCurrentDisplay("-");
+        }
+
+      }
+  }
+  // operator clicked
   function manageOperatorClick(operator){
     // an operation has been evaluated 
     if(evaluated){
@@ -106,14 +133,20 @@ export default function App(props){
     }
     // no evaluated operation
     else {
+
       // if operation started
       if(currentDisplay !== "0"){
-        let lastChar = currentOperation.substring(currentOperation.length - 1);
+        let lastChar = currentOperation.substr(-1);
+        let beforeLastChar = currentOperation.substr(-3, 1);
         // if lastChar is an operator replace it 
-        if(isAnOperator(lastChar)){
-          let nextOp = currentOperation.substring(0, currentOperation.length - 1) + operator;
+        if(isAnOperator(lastChar) || lastChar === "-"){
+          let nextOperation;
+          if(isAnOperator(beforeLastChar) || beforeLastChar === "-"){
+            nextOperation = currentOperation.substring(0, currentOperation.length - 3) + operator;
+          }
+          else nextOperation = currentOperation.substring(0, currentOperation.length - 1) + operator;
           setCurrentDisplay(operator);
-          setCurrentOperation(nextOp);
+          setCurrentOperation(nextOperation);
         }
         else {
           setCurrentDisplay(operator);
@@ -131,7 +164,6 @@ export default function App(props){
             // if dot is pressed
       if(num === '.'){
         // if there is no dot on display 
-
         if(currentDisplay.indexOf(num) === -1){
           setCurrentDisplay(currentDisplay+num);
           setCurrentOperation(currentOperation+num);
@@ -140,19 +172,22 @@ export default function App(props){
 
       // if a number is pressed
       else{
+        if(!currentOperation && num === "0"){
+          return;
+        }
         // if display is an operator 
-        if(isAnOperator(currentDisplay)){
+        else if(isAnOperator(currentDisplay)){
           setCurrentDisplay(num);
-          setCurrentOperation(currentOperation+" "+num)
+          setCurrentOperation(currentOperation+" "+num);
         }
         // if display = 0
         else if(currentDisplay === '0'){
           setCurrentDisplay(num);
-          setCurrentOperation(currentOperation+num)
+          setCurrentOperation(currentOperation+num);
         }
         // if display is a number
         else {
-          setCurrentDisplay(currentDisplay+num)
+          setCurrentDisplay(currentDisplay+num);
           setCurrentOperation(currentOperation+num)
         }
       } 
@@ -169,7 +204,7 @@ export default function App(props){
     // if equal is pressed and no operation evaluated
     if (value === "=" && currentOperation && !evaluated){
       setEvaluated(true);
-      const result = Math.round(1000000000000 * eval(currentOperation)) / 1000000000000;
+      const result = Math.round(1000000000000 * safeEval(currentOperation)) / 1000000000000;
       setCurrentOperation(currentOperation+" "+value+" "+result)
       setCurrentDisplay(result.toString());
     }
@@ -178,13 +213,23 @@ export default function App(props){
 
     //if AC is pressed
     else if(value === "AC") reset();
-
+    
+    // if Minus pressed
+    else if(value === "-"){
+      manageMinusClick();
+    }
     // if a number or a dot is pressed
     else{
         // if the current display is not too long
         currentDisplay.length < 16 && manageNumberOrDotClick(value);
     }
 
+  }
+  // sanityze string input for safety
+  function safeEval(stringOperation){
+    // strip anything other than digits, (), -+/* and .
+    var str = stringOperation.replace(/[^-()\d/*+.]/g, '');
+    return eval(str);
   }
   const renderPads = (props) => {
     return(
