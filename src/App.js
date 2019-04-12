@@ -2,11 +2,24 @@ import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  min-height: 100vh;
+  height: 100vh;
   background-color: #fff;
-  padding-top: 2rem;
   display: flex;
   align-items: center;
+  position: relative;
+  z-index: 1;
+  ::before{
+    content: "";
+    background: url("https://images.pexels.com/photos/1314529/pexels-photo-1314529.jpeg?cs=srgb&dl=concept-numbers-red-background-1314529.jpg&fm=jpg");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: -2;
+    opacity: .3;
+  }
 `
 const OuterCalc = styled.div`
   padding: 3px 5px;
@@ -15,7 +28,7 @@ const OuterCalc = styled.div`
   width: 370px;
   background-color: #333;
   margin: 0 auto;
-  box-shadow: 5px 5px 10px rgba(0,0,0,.5);
+  box-shadow: -5px 5px 20px rgba(0,0,0,.8);
 `
 const Calculator = styled.div`
   display: grid;
